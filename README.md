@@ -12,15 +12,15 @@ It's store only metric values.
 
 For example we have 2 metrics with granularity "minute" and "hour", this what we will see database: 
 
-job_id | dt | granularity | response_time_min | response_time_max | data                              
+job_id | dt | granularity | rt_min | rt_max | data                              
 -------|----|-------------|-------------------|-------------------|------------------------------------------------
-1|2021-02-09 03:00:00.000000|hour|0.0044|0.0058|"{""200"": 2470, ""404"": 679, ""500"": 351}"
-1|2021-02-09 03:01:00.000000|minute|0.0043|0.0055|"{""200"": 35, ""404"": 18, ""500"": 5}"
-1|2021-02-09 03:02:00.000000|minute|0.00423|0.0052|"{""200"": 38, ""404"": 14, ""500"": 6}"
+1|2021-02-09 03:00:00.000000|hour|0.0044|0.0058|{"200": 2470, "404": 679, "500": 351}
+1|2021-02-09 03:01:00.000000|minute|0.0043|0.0055|{"200": 35, "404": 18, "500": 5}
+1|2021-02-09 03:02:00.000000|minute|0.00423|0.0052|{"200": 38, "404": 14, "500": 6}
 
 - **dt** - is the UTC datetime
 - **granularity** - is the period of time we aggregated data for
-- **response_time_min** and **response_time_max** - min and max values for response time
+- **rt_min** and **rt_min** - min and max values for response time
 - **data** - is JSONB structure to keep status_code counters. Because there could be a whole range of different HTTP 
 status codes, it wasn't practical to keep them as columns. When this field is being updated - value for every key is 
 being increased not overridden, this way we can keep correct stats.
