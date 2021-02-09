@@ -31,7 +31,7 @@ Application is ready to be deployed to *Google App Engine*, but there's few step
 2. Copy "ca.pem", "service.cert", "service.key" to "settings" folder to have a secure SSH connection to Kafka
 
 After that application can be deployed to *Google App Engine* with command:
-* `gcloud app deploy`
+- `gcloud app deploy`
   
 ## REST API
 Implemented in [api.py](api.py)
@@ -59,7 +59,7 @@ Features:
 
 Example of *Monitoring Job Configuration* can be found in jobs.json 
 
-#####ToDo:
+###### ToDo:
 - Store information about *Monitoring Job Configuration* in database instead of json file.
 
 ## Monitor (Kafka Producer)
@@ -95,7 +95,7 @@ Base class ***BaseMsgProcessor*** provide functionality to:
 - ConfluentKafkaMsgProcessor - using Confluet Kafka library, it's a fastest python library but it's blocking.
 - AioKafkaMsgProcessor - Using AioKafka library, slightly slower, but it's asynchronous.
 
-#####ToDo:
+###### ToDo:
 - Function to upsert data to database is really crappy, need to fix it.
  
 # Possible improvements
