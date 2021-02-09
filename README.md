@@ -7,6 +7,24 @@ Goals:
 - [x] API should allow to start/cancel jobs and return it's status
 - [ ] Have good tests
 
+Current implementation doesn't store to database every message that was pushed to kafka.
+It's store only metric values.
+
+For example we have 2 metrics with granularity "minute" and "hour", this what we will see database: 
+
+job_id | dt | granularity | response_time_min | response_time_max | data                              
+-------|----|-------------|-------------------|-------------------|------------------------------------------------
+1|2021-02-09 03:00:00.000000|hour|0.0044|0.0058|"{""200"": 2470, ""404"": 679, ""500"": 351}"
+1|2021-02-09 03:01:00.000000|minute|0.0043|0.0055|"{""200"": 35, ""404"": 18, ""500"": 5}"
+1|2021-02-09 03:02:00.000000|minute|0.00423|0.0052|"{""200"": 38, ""404"": 14, ""500"": 6}"
+
+- **dt** - is the UTC datetime
+- **granularity** - is the period of time we aggregated data for
+- **response_time_min** and **response_time_max** - min and max values for response time
+- **data** - is JSONB structure to keep status_code counters. Because there could be a whole range of different HTTP 
+status codes, it wasn't practical to keep them as columns. When this field is being updated - value for every key is 
+being increased not overridden, this way we can keep correct stats.
+
 ## Deployment
 Application is ready to be deployed to *Google App Engine*, but there's few steps should be taken to configure it.
 1. Fill all variables in [settings/.env.example](settings/.env.example)
@@ -41,7 +59,7 @@ Features:
 
 Example of *Monitoring Job Configuration* can be found in jobs.json 
 
-######ToDo:
+#####ToDo:
 - Store information about *Monitoring Job Configuration* in database instead of json file.
 
 ## Monitor (Kafka Producer)
@@ -77,7 +95,7 @@ Base class ***BaseMsgProcessor*** provide functionality to:
 - ConfluentKafkaMsgProcessor - using Confluet Kafka library, it's a fastest python library but it's blocking.
 - AioKafkaMsgProcessor - Using AioKafka library, slightly slower, but it's asynchronous.
 
-######ToDo:
+#####ToDo:
 - Function to upsert data to database is really crappy, need to fix it.
  
 # Possible improvements
