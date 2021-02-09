@@ -1,0 +1,8 @@
+#runtime: python39
+runtime: custom
+env: flex
+
+service: a-app
+
+manual_scaling:
+  instances: 1
