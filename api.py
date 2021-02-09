@@ -5,7 +5,7 @@ from fastapi import FastAPI, responses
 from db import DB
 from processors.msg_processor_aiokafka import AioKafkaMsgProcessor
 from scheduler import Scheduler
-from sql_statments import create_table_jobs_statement, create_table_stats_statement
+from db.sql_statments import create_table_jobs_statement, create_table_stats_statement
 from website import WebsiteMock
 
 app = FastAPI()

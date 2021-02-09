@@ -8,6 +8,9 @@ import logging
 from collections import defaultdict
 from typing import List
 
+import msgpack
+import pendulum
+
 from db import DB
 
 logging.basicConfig(level=logging.INFO)
@@ -64,6 +67,23 @@ class BaseMsgProcessor:
 
     async def loop(self):
         raise NotImplementedError()
+
+    async def process_msg(self, msg_raw):
+        msg = msgpack.unpackb(msg_raw)
+        print(f'Received message: {msg}')
+        self.number_of_received_messages += 1
+
+        for metric in self.metrics:
+            ts = pendulum.from_timestamp(msg["ts"]).replace(microsecond=0)
+
+            if metric["granularity"] == "minute":
+                ts = ts.replace(second=0)
+            elif metric["granularity"] == "hour":
+                ts = ts.replace(minute=0, second=0)
+
+            self.running_stats[(msg["job_id"], ts, metric["granularity"])].update(
+                status=msg["status"], response_time=msg["response_time"]
+            )
 
     async def upload_stats(self):
         for k, v in self.running_stats.items():

@@ -57,20 +57,6 @@ class AioKafkaMsgProcessor(BaseMsgProcessor, ABC):
 
         schedule.every(10).seconds.do(self.upload_stats)
         async for msg in self.consumer:
-            msg = msgpack.unpackb(msg.value)
-            print(f'Received message: {msg}')
-            self.number_of_received_messages += 1
-
-            for metric in self.metrics:
-                ts = pendulum.from_timestamp(msg["ts"]).replace(microsecond=0)
-
-                if metric["granularity"] == "minute":
-                    ts = ts.replace(second=0)
-                elif metric["granularity"] == "hour":
-                    ts = ts.replace(minute=0, second=0)
-
-                self.running_stats[(msg["job_id"], ts, metric["granularity"])].update(
-                    status=msg["status"], response_time=msg["response_time"]
-                )
+            await self.process_msg(msg.value)
 
             await schedule.run_pending()

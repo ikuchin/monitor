@@ -52,8 +52,7 @@ class ConfluentKafkaMsgProcessor(BaseMsgProcessor, ABC):
 
         schedule.every(10).seconds.do(self.upload_stats)
         while True:
-            await asyncio.sleep(0)  # this is the way to switch to next coroutine
-            msg = self.consumer.poll(0.1)
+            msg = self.consumer.poll(0.1)  # This is a blocking call
 
             if msg is None:
                 continue
@@ -61,21 +60,7 @@ class ConfluentKafkaMsgProcessor(BaseMsgProcessor, ABC):
                 print("Consumer error: {}".format(msg.error()))
                 continue
 
-            msg = msgpack.unpackb(msg.value())
-            print(f'Received message: {msg}')
-            self.number_of_received_messages += 1
+            await self.process_msg(msg.value())
 
-            for metric in self.metrics:
-                ts = pendulum.from_timestamp(msg["ts"]).replace(microsecond=0)
-
-                if metric["granularity"] == "minute":
-                    ts = ts.replace(second=0)
-                elif metric["granularity"] == "hour":
-                    ts = ts.replace(minute=0, second=0)
-
-                self.running_stats[(msg["job_id"], ts, metric["granularity"])].update(
-                    status=msg["status"], response_time=msg["response_time"]
-                )
-
-            # consumer.commit()  # Don't need if auto.commit enabled
             await schedule.run_pending()
+            await asyncio.sleep(0)  # this is the way to switch to next coroutine

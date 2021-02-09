@@ -2,8 +2,8 @@
   {
     "job_id": 1,
     "job_name": "check localhost",
+    "check_period_seconds": 1,
     "uri": "http://127.0.0.1:8080/website_mock",
-    "method": "get",
-    "check_period_seconds": 1
+    "method": "get"
   }
 ]

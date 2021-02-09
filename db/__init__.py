@@ -9,7 +9,7 @@ import psycopg2
 from psycopg2 import sql
 
 from settings import db_host, db_port, db_user, db_pass, db_name
-from sql_statments import create_table_jobs_statement, create_table_stats_statement
+from db.sql_statments import create_table_jobs_statement, create_table_stats_statement
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
