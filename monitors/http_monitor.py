@@ -4,6 +4,7 @@ import aiohttp
 import pendulum
 
 from monitors.base_monitor import MonitorBase
+
 # from streaming_client.client_kafka_confluent import ClientKafkaConfluent as ClientKafka
 from streaming_client.client_kafka_aio import ClientKafkaAio as ClientKafka
 
@@ -16,12 +17,12 @@ class HttpMonitor(MonitorBase):
         self.streaming_client = ClientKafka()
 
     async def check(self):
-        td = pendulum.now('UTC')
+        td = pendulum.now("UTC")
         msg = {
             "job_id": self.job_id,
             "response_time": 0,
             "status": None,
-            "ts": td.timestamp()
+            "ts": td.timestamp(),
         }
 
         try:
@@ -36,4 +37,3 @@ class HttpMonitor(MonitorBase):
 
         self.stats.update_counter(td, msg["status"])
         await self.send_message(msg)
-

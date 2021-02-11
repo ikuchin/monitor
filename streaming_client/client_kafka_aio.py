@@ -5,8 +5,12 @@ from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from aiokafka.helpers import create_ssl_context
 from streaming_client.client_base import ClientBase
 
-from settings import (kafka_bootstrap_servers, kafka_ssl_ca_location,
-                      kafka_ssl_certificate_location, kafka_ssl_key_location)
+from settings import (
+    kafka_bootstrap_servers,
+    kafka_ssl_ca_location,
+    kafka_ssl_certificate_location,
+    kafka_ssl_key_location,
+)
 
 
 class ClientKafkaAio(ClientBase):
@@ -23,7 +27,7 @@ class ClientKafkaAio(ClientBase):
         return create_ssl_context(
             cafile=kafka_ssl_ca_location,
             certfile=kafka_ssl_certificate_location,
-            keyfile=kafka_ssl_key_location
+            keyfile=kafka_ssl_key_location,
         )
 
     async def producer_connect(self):
@@ -40,7 +44,6 @@ class ClientKafkaAio(ClientBase):
             bootstrap_servers=kafka_bootstrap_servers,
             security_protocol="SSL" if self.ssl_context() else None,
             ssl_context=self.ssl_context(),
-
             auto_offset_reset="latest",
             client_id="test-client-1",
             group_id="test-group-1",

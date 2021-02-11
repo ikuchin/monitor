@@ -31,7 +31,13 @@ class DB:
     def connection(self):
         if self._conn is None:
             print("Connecting", db_host, db_port, db_user, db_pass, db_name)
-            self._conn = psycopg2.connect(host=db_host, port=db_port, user=db_user, password=db_pass, dbname=db_name)
+            self._conn = psycopg2.connect(
+                host=db_host,
+                port=db_port,
+                user=db_user,
+                password=db_pass,
+                dbname=db_name,
+            )
 
         return self._conn
 

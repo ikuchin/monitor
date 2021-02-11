@@ -9,11 +9,7 @@ from scheduler import Scheduler
 from db.sql_statments import create_table_jobs_statement, create_table_stats_statement
 from website import WebsiteMock
 
-app = FastAPI(
-    db=DB(),
-    scheduler=Scheduler(),
-    website_mock=WebsiteMock()
-)
+app = FastAPI(db=DB(), scheduler=Scheduler(), website_mock=WebsiteMock())
 
 # We can run Message Processor (Kafka message consumer) in the same process,
 # this may affect performance in negative way on the high load. But it's should be fine for POC.
@@ -21,20 +17,20 @@ msg_processor = AioKafkaMsgProcessor(kafka_topics=["test"])
 
 
 def get_scheduler():
-    return app.extra['scheduler']
+    return app.extra["scheduler"]
 
 
 def get_db():
-    return app.extra['db']
+    return app.extra["db"]
 
 
 def get_website_mock():
-    return app.extra['website_mock']
+    return app.extra["website_mock"]
 
 
 @app.on_event("startup")
 async def startup_event():
-    asyncio.create_task(app.extra['scheduler'].start_scheduler())
+    asyncio.create_task(app.extra["scheduler"].start_scheduler())
     if msg_processor:
         asyncio.create_task(msg_processor.loop())
 
@@ -45,7 +41,7 @@ def index(scheduler=Depends(get_scheduler)):
         "scheduler_up_time": scheduler.up_time(),
         "number_of_running_jobs": len(scheduler.running_jobs),
         "status": "ok",
-        "number_of_produced_messages": sum(job.number_of_send_messages for job in scheduler.jobs.values())
+        "number_of_produced_messages": sum(job.number_of_send_messages for job in scheduler.jobs.values()),
     }
 
     if msg_processor:
@@ -69,9 +65,7 @@ def db_init(db=Depends(get_db)):
 
 @app.get("/job", summary="List all Jobs", tags=["Jobs"])
 def job_list(scheduler=Depends(get_scheduler)):
-    return [{
-        job_id: job.job_name
-    } for job_id, job in scheduler.jobs.items()]
+    return [{job_id: job.job_name} for job_id, job in scheduler.jobs.items()]
 
 
 @app.get("/job/{job_id}", summary="Show Job info", tags=["Jobs"])
@@ -110,7 +104,7 @@ def website(website_mock=Depends(get_website_mock)):
     return responses.HTMLResponse(content=content, status_code=status_code)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run("api:app", host="0.0.0.0", port=8080, reload=False)

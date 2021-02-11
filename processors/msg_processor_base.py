@@ -1,6 +1,5 @@
 """
 Kafka message processor
-
 """
 import atexit
 import json
@@ -16,16 +15,15 @@ from db import DB
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__file__)
 
-logger.info('Connection')
 db = DB()
 
-translation_table = str.maketrans({"'": '', '"': ''})
+translation_table = str.maketrans({"'": "", '"': ""})
 
 
 class Stats:
     def __init__(self, counter: dict = None, response_time_min=None, response_time_max=None):
         self.counter = defaultdict(int)
-        self.response_time_min = response_time_min or float('inf')
+        self.response_time_min = response_time_min or float("inf")
         self.response_time_max = response_time_max or 0
 
         if counter:
@@ -46,11 +44,13 @@ class Stats:
 
     def __eq__(self, other):
         if isinstance(other, Stats):
-            return all([
-                self.counter == other.counter,
-                self.response_time_max == other.response_time_max,
-                self.response_time_min == other.response_time_min,
-            ])
+            return all(
+                [
+                    self.counter == other.counter,
+                    self.response_time_max == other.response_time_max,
+                    self.response_time_min == other.response_time_min,
+                ]
+            )
         else:
             return False
 
@@ -107,19 +107,25 @@ class BaseMsgProcessor:
         for k, v in self.running_stats.items():
             (job_id, ts, granularity) = k
             print("Upserting record", job_id, ts, granularity, v)
-            data_update_statement = ", ', ',".join([
-                f''' '"{k}":', COALESCE(stats.data->>'{k}','0')::int + {v}'''
-                for k, v in v.counter.items()
-            ])
+            data_update_statement = ", ', ',".join(
+                [f""" '"{k}":', COALESCE(stats.data->>'{k}','0')::int + {v}""" for k, v in v.counter.items()]
+            )
 
             status, records = db.execute_query(
-                f'''
+                f"""
                 INSERT INTO stats (job_id, ts, granularity, response_time_min, response_time_max, data)
                 VALUES (%s, %s, %s, %s, %s, %s)
                 ON CONFLICT on constraint stats_job_id_ts_granularity_key
                 DO UPDATE SET data = stats.data || CONCAT('{{', {data_update_statement}, '}}')::jsonb;
-                ''',
-                [job_id, ts, granularity, v.response_time_min, v.response_time_max, json.dumps(v.counter)],
-                auto_commit=True
+                """,
+                [
+                    job_id,
+                    ts,
+                    granularity,
+                    v.response_time_min,
+                    v.response_time_max,
+                    json.dumps(v.counter),
+                ],
+                auto_commit=True,
             )
         self.running_stats.clear()

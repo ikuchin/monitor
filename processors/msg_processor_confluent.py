@@ -12,8 +12,12 @@ import pendulum
 from confluent_kafka import Consumer
 
 from processors.msg_processor_base import BaseMsgProcessor
-from settings import (kafka_bootstrap_servers, kafka_ssl_ca_location,
-                      kafka_ssl_certificate_location, kafka_ssl_key_location)
+from settings import (
+    kafka_bootstrap_servers,
+    kafka_ssl_ca_location,
+    kafka_ssl_certificate_location,
+    kafka_ssl_key_location,
+)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__file__)
@@ -24,19 +28,21 @@ class ConfluentKafkaMsgProcessor(BaseMsgProcessor, ABC):
     Confluent Kafka library can show slightly better performance than AIOKafka on high loads.
     But because of it's blocking nature it doesn't work well when consumer and producer working in the same thread.
     """
-    async def connect(self):
-        self.consumer = Consumer({
-            "bootstrap.servers": kafka_bootstrap_servers,
-            "security.protocol": "SSL",
-            "ssl.ca.location": kafka_ssl_ca_location,
-            "ssl.certificate.location": kafka_ssl_certificate_location,
-            "ssl.key.location": kafka_ssl_key_location,
 
-            # "enable.auto.commit": True,  # this is default
-            "auto.offset.reset": "latest",  # earliest - for oldest not committed message, latest - for new messages
-            "client.id": "test-client-1",
-            "group.id": "test-group-1",
-        })
+    async def connect(self):
+        self.consumer = Consumer(
+            {
+                "bootstrap.servers": kafka_bootstrap_servers,
+                "security.protocol": "SSL",
+                "ssl.ca.location": kafka_ssl_ca_location,
+                "ssl.certificate.location": kafka_ssl_certificate_location,
+                "ssl.key.location": kafka_ssl_key_location,
+                # "enable.auto.commit": True,  # this is default
+                "auto.offset.reset": "latest",  # earliest - for oldest not committed message, latest - for new messages
+                "client.id": "test-client-1",
+                "group.id": "test-group-1",
+            }
+        )
         await self.subscribe()
 
     async def subscribe(self):

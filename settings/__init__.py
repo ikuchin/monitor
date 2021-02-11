@@ -13,9 +13,10 @@ db_pass = os.environ.get("DB_PASS")
 db_name = os.environ.get("DB_NAME")
 
 kafka_bootstrap_servers = os.environ.get("KAFKA_BOOTSTRAP_SERVERS")
-kafka_ssl_ca_location = settings_path + "/" + os.environ.get("KAFKA_CA_FILE") or "ca.pem"
-kafka_ssl_certificate_location = settings_path + "/" + os.environ.get("KAFKA_CERTIFICATE_FILE") or "service.cert"
-kafka_ssl_key_location = settings_path + "/" + os.environ.get("KAFKA_KEY_FILE") or "service.key"
+
+kafka_ssl_ca_location = f"{settings_path}/{os.environ['KAFKA_CA_FILE']}"
+kafka_ssl_certificate_location = f"{settings_path}/{os.environ['KAFKA_CERTIFICATE_FILE']}"
+kafka_ssl_key_location = f"{settings_path}/{os.environ['KAFKA_KEY_FILE']}"
 
 if not os.path.isfile(kafka_ssl_ca_location):
     kafka_ssl_ca_location = None
