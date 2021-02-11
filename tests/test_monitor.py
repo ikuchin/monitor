@@ -17,7 +17,7 @@ class FakeResponse(MagicMock):
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        print(exc_type, exc_val, exc_tb)
+        pass
 
 
 class TestMonitor(TestCase):
@@ -32,8 +32,6 @@ class TestMonitor(TestCase):
 
         self.assertEqual(2, monitor.job_id)
         self.assertEqual("test_name", monitor.job_name)
-
-        print(monitor.dict())
 
         self.assertDictEqual(
             {
@@ -57,8 +55,6 @@ class TestMonitor(TestCase):
 
         stats.update_counter(pendulum.from_timestamp(0), 200)
 
-        print(stats.dict())
-
         self.assertDictEqual(
             {
                 "counts_total": {200: 1},
@@ -74,7 +70,6 @@ class TestMonitor(TestCase):
         pendulum.set_test_now(pendulum.from_timestamp(0))
         with patch.object(ClientSession, "request", FakeResponse) as mock_method_1:
             with patch.object(MonitorBase, "send_message") as mock_method_2:
-                # with patch('monitors.base_monitor.Producer') as mock_method_2:
                 asyncio.run(monitor.check())
                 self.assertDictContainsSubset(
                     {"job_id": 1, "status": "status", "ts": 0.0},

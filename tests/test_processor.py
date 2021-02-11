@@ -1,4 +1,3 @@
-from pprint import pprint
 from unittest import TestCase
 import random
 import msgpack

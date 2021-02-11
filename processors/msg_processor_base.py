@@ -17,6 +17,7 @@ logger = logging.getLogger(__file__)
 
 db = DB()
 
+# This table is used to fix values that we can't currently correctly upsert to DB
 translation_table = str.maketrans({"'": "", '"': ""})
 
 

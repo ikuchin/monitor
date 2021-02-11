@@ -57,8 +57,8 @@ def db_init(db=Depends(get_db)):
 
     :return:
     """
-    db.execute_query("DROP TABLE IF EXISTS jobs, stats;", auto_commit=True)
-    db.execute_query(create_table_jobs_statement + create_table_stats_statement, auto_commit=True)
+    db.execute_query("DROP TABLE IF EXISTS jobs, stats;")
+    db.execute_query(create_table_jobs_statement + create_table_stats_statement)
 
     return {"status": "ok"}
 

@@ -19,7 +19,6 @@ class TestMsgProcessor(TestCase):
                 "number_of_consumed_messages": 0,
                 "number_of_produced_messages": 0,
                 "number_of_running_jobs": 0,
-                # 'scheduler_up_time': '0.01 second',
                 "status": "ok",
             },
             response.json(),
@@ -31,7 +30,6 @@ class TestMsgProcessor(TestCase):
         self.assertEqual([{"1": "check localhost"}], response.json())
 
     def test_api_job_create(self):
-        # ToDo: Create this test
         response = self.client.post(
             "/job",
             json={
