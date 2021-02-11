@@ -8,7 +8,7 @@ Goals:
 - [x] Test coverage is 67%, but only positive tests exists right now
 
 Current implementation doesn't store to database every message that was pushed to kafka.
-It's store only metric values.
+It's store only metric values. See [Processor](##-Processor-Kafka-Consumer) for details. 
 
 For example we have 2 metrics with granularity "minute" and "hour", this what we will see database: 
 
@@ -76,7 +76,7 @@ HttpMonitor can be configured with next parameters:
 - Method to use on specified URI. HEAD/GET/POST etc. Not all end points may support all methods,
 that's why it is a configurable parameter.
 
-## Processor (Kafka Consumer)
+## Processor Kafka Consumer
 Implemented in module [processors](processors) 
 
 Consume messages from Kafka, aggregate data from messages based on provided metrics, write data to 
