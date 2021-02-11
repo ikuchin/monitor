@@ -20,11 +20,14 @@ logger = logging.getLogger(__file__)
 
 logger.info('Connection')
 
-context = create_ssl_context(
-    cafile=kafka_ssl_ca_location,
-    certfile=kafka_ssl_certificate_location,
-    keyfile=kafka_ssl_key_location
-)
+try:
+    context = create_ssl_context(
+        cafile=kafka_ssl_ca_location,
+        certfile=kafka_ssl_certificate_location,
+        keyfile=kafka_ssl_key_location
+    )
+except:
+    context = None
 
 
 class AioKafkaMsgProcessor(BaseMsgProcessor, ABC):
@@ -35,7 +38,7 @@ class AioKafkaMsgProcessor(BaseMsgProcessor, ABC):
     async def connect(self):
         self.consumer = AIOKafkaConsumer(
             bootstrap_servers=kafka_bootstrap_servers,
-            security_protocol="SSL",
+            security_protocol="SSL" if context else None,
             ssl_context=context,
 
             auto_offset_reset="latest",  # earliest - for oldest not committed message, latest - for new messages
@@ -57,6 +60,6 @@ class AioKafkaMsgProcessor(BaseMsgProcessor, ABC):
 
         schedule.every(10).seconds.do(self.upload_stats)
         async for msg in self.consumer:
-            await self.process_msg(msg.value)
+            self.process_msg(msg.value)
 
             await schedule.run_pending()

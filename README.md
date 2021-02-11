@@ -5,7 +5,7 @@ Goals:
 - [x] Have an API server that will periodically run jobs to check/ping external servers.
 - [x] Have a fake server that will return predicted results
 - [x] API should allow to start/cancel jobs and return it's status
-- [ ] Have good tests
+- [x] Test coverage is 67%, but only positive tests exists right now
 
 Current implementation doesn't store to database every message that was pushed to kafka.
 It's store only metric values.
@@ -65,7 +65,7 @@ Example of *Monitoring Job Configuration* can be found in jobs.json
 ## Monitor (Kafka Producer)
 Implemented in module [monitors](monitors)
 
-Base class ***BaseMonitor*** provide functionality to send messages to kafka and 
+Base class ***MonitorBase*** provide functionality to send messages to kafka and 
 keeping stats about it's execution.
 - Using ConfluentKafka library under the hood.
 
@@ -97,14 +97,15 @@ Base class ***BaseMsgProcessor*** provide functionality to:
 
 ###### ToDo:
 - Function to upsert data to database is really crappy, need to fix it.
+- Replace ConfluentKafkaMsgProcessor and AioKafkaMsgProcessor with [streaming_client](streaming_client) alternatives. 
  
 # Possible improvements
-- ***Scheduler*** can be replaced with *task scheduling system* such as Celery, but then ***BaseMonitor*** 
+- ***Scheduler*** can be replaced with *task scheduling system* such as Celery, but then ***MonitorBase*** 
 should be changed to keep it's stats in database instead of memory, good option for database would be ***Redis***.
 - Extend ***Processor*** metrics. Right now we can specify only ***granularity*** as metric parameter, but it should 
 be possible to specify ***aggregate_function*** (min/max/avg), ***field*** - message field that will be used for 
 aggravation.
-- Only HTTP Monitoring Jobs are supported. It's possible to extend BaseMonitor to support 
+- Only HTTP Monitoring Jobs are supported. It's possible to extend MonitorBase to support 
 other types of monitors, for example do SOCKS/WebSocket/Telnet/SSH monitors.
 - There is a tight integration between ***Monitor*** and ***Processor***. ***Processor*** can 
 process only specific types of messages. Need to come up with generic message format.  

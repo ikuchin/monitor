@@ -21,7 +21,7 @@ class DB:
     def __init__(self):
         self._conn = None
 
-        self.create_tables()
+        # self.create_tables()
         atexit.register(self.close_connection)
 
     def create_tables(self):
@@ -48,7 +48,7 @@ class DB:
         query = sql.SQL("DROP DATABASE {}").format(sql.Identifier(db_name))
         return self.execute_query(query, auto_commit=True)
 
-    def execute_query(self, query, params=None, auto_commit=False):
+    def execute_query(self, query, params=None, auto_commit=True):
         if auto_commit:
             self.connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 

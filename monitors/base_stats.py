@@ -16,9 +16,9 @@ class BaseStats:
     def dict(self):
         total_count_sum = sum(self.counts_total.values())
         return {
-            "counts_total": self.counts_total,
-            "counts_by_hour": self.counts_by_hour,
-            "counts_by_minute": self.counts_by_minute,
+            "counts_total": dict(self.counts_total),
+            "counts_by_hour": {k: dict(v) for k, v in self.counts_by_hour.items()},
+            "counts_by_minute": {k: dict(v) for k, v in self.counts_by_minute.items()},
             "percent_total": {
                 k: f"{100 / total_count_sum * v:.2f}%"
                 for k, v in self.counts_total.items()

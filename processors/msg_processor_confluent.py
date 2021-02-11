@@ -60,7 +60,7 @@ class ConfluentKafkaMsgProcessor(BaseMsgProcessor, ABC):
                 print("Consumer error: {}".format(msg.error()))
                 continue
 
-            await self.process_msg(msg.value())
+            self.process_msg(msg.value())
 
             await schedule.run_pending()
             await asyncio.sleep(0)  # this is the way to switch to next coroutine

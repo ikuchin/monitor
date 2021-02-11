@@ -2,8 +2,11 @@ FROM alpine:edge
 
 WORKDIR /app
 
-RUN apk add python3 py3-pip py3-psycopg2 build-base python3-dev librdkafka-dev tzdata && \
-    ln -sf /usr/share/zoneinfo/UTC /etc/localtime
+RUN apk add python3 py3-pip py3-psycopg2 build-base python3-dev && \
+    apk add tzdata && ln -sf /usr/share/zoneinfo/UTC /etc/localtime
+
+# If support for confluent_kafka is needed, uncomment next line
+# RUN apk add librdkafka-dev
 
 COPY requirements.txt /app/
 

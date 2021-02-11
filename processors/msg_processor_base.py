@@ -23,10 +23,13 @@ translation_table = str.maketrans({"'": '', '"': ''})
 
 
 class Stats:
-    def __init__(self):
+    def __init__(self, counter: dict = None, response_time_min=None, response_time_max=None):
         self.counter = defaultdict(int)
-        self.response_time_min = float('inf')
-        self.response_time_max = 0
+        self.response_time_min = response_time_min or float('inf')
+        self.response_time_max = response_time_max or 0
+
+        if counter:
+            self.counter.update(counter)
 
     def update(self, status, response_time: float):
         # If "status" is an error message, it may contain characters that will prevent correct DB update
@@ -39,11 +42,21 @@ class Stats:
         self.response_time_max = max(self.response_time_max, response_time)
 
     def __repr__(self):
-        return f"{dict(self.counter)} {self.response_time_min} {self.response_time_max}"
+        return f"{dict(self.counter)}, {self.response_time_min}, {self.response_time_max}"
+
+    def __eq__(self, other):
+        if isinstance(other, Stats):
+            return all([
+                self.counter == other.counter,
+                self.response_time_max == other.response_time_max,
+                self.response_time_min == other.response_time_min,
+            ])
+        else:
+            return False
 
 
 class BaseMsgProcessor:
-    def __init__(self, kafka_topics: List[str]):
+    def __init__(self, kafka_topics: List[str]):  # ToDo: BaseMsgProcessor should not have kafka_topics as it's param
         self.consumer = None
         self.kafka_topics = kafka_topics
         self.metrics = [
@@ -53,9 +66,8 @@ class BaseMsgProcessor:
         self.number_of_received_messages = 0
         self.running_stats = defaultdict(Stats)
 
-        atexit.register(self.disconnect)
-
     async def connect(self):
+        atexit.register(self.disconnect)
         await self.subscribe()
         raise NotImplementedError()
 
@@ -68,9 +80,15 @@ class BaseMsgProcessor:
     async def loop(self):
         raise NotImplementedError()
 
-    async def process_msg(self, msg_raw):
+    def process_msg(self, msg_raw):
+        """
+        "Processing Message" - means passing message to all metric instances (processors)
+
+        :param msg_raw:
+        :return:
+        """
+
         msg = msgpack.unpackb(msg_raw)
-        print(f'Received message: {msg}')
         self.number_of_received_messages += 1
 
         for metric in self.metrics:

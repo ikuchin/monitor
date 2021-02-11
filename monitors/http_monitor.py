@@ -1,17 +1,19 @@
-import asyncio
 from time import perf_counter
 
 import aiohttp
 import pendulum
 
-from monitors.base_monitor import BaseMonitor
+from monitors.base_monitor import MonitorBase
+# from streaming_client.client_kafka_confluent import ClientKafkaConfluent as ClientKafka
+from streaming_client.client_kafka_aio import ClientKafkaAio as ClientKafka
 
 
-class HttpMonitor(BaseMonitor):
+class HttpMonitor(MonitorBase):
     def __init__(self, job_id, uri, method, **kwargs):
         super().__init__(job_id, **kwargs)
         self.uti = uri
         self.method = method
+        self.streaming_client = ClientKafka()
 
     async def check(self):
         td = pendulum.now('UTC')
@@ -33,9 +35,5 @@ class HttpMonitor(BaseMonitor):
             msg["status"] = str(e)
 
         self.stats.update_counter(td, msg["status"])
-        self.send_message(msg)
-
-
-if __name__ == '__main__':
-    asyncio.run(HttpMonitor(None, "http://127.0.0.1:8082", "get").check())
+        await self.send_message(msg)
 
