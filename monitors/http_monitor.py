@@ -14,7 +14,6 @@ class HttpMonitor(MonitorBase):
         super().__init__(job_id, **kwargs)
         self.uti = uri
         self.method = method
-        self.streaming_client = ClientKafka()
 
     async def check(self):
         td = pendulum.now("UTC")

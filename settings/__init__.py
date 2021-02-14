@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 settings_path = os.path.dirname(__file__)
 
-load_dotenv(f"{settings_path}/.env.example")
+load_dotenv(f"{settings_path}/.env.aiven")
 
 db_host = os.environ.get("DB_HOST")
 db_port = os.environ.get("DB_PORT")

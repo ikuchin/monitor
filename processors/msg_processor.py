@@ -1,6 +1,7 @@
 """
 Kafka message processor
 """
+import asyncio
 import atexit
 import json
 import logging
@@ -8,9 +9,11 @@ from collections import defaultdict
 from typing import List
 
 import msgpack
+import aioschedule as schedule
 import pendulum
 
 from db import DB
+from settings.defaults import default_streaming_client
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__file__)
@@ -21,7 +24,7 @@ db = DB()
 translation_table = str.maketrans({"'": "", '"': ""})
 
 
-class Stats:
+class Stats:  # ToDo: should be replaced by MetricTemplate/MetricInstance
     def __init__(self, counter: dict = None, response_time_min=None, response_time_max=None):
         self.counter = defaultdict(int)
         self.response_time_min = response_time_min or float("inf")
@@ -56,30 +59,44 @@ class Stats:
             return False
 
 
-class BaseMsgProcessor:
-    def __init__(self, kafka_topics: List[str]):  # ToDo: BaseMsgProcessor should not have kafka_topics as it's param
+class MsgProcessor:
+    """
+    Processor should know about Jobs it's working with. It probably load jobs and the start...
+    """
+
+    def __init__(self, topics: List[str], **kwargs):  # ToDo: MsgProcessor should not have kafka_topics as it's param
         self.consumer = None
-        self.kafka_topics = kafka_topics
+        self.topics = topics
         self.metrics = [
             {"granularity": "minute"},
             {"granularity": "hour"},
         ]
+        self.streaming_client = kwargs.get('streaming_client') or default_streaming_client
         self.number_of_received_messages = 0
         self.running_stats = defaultdict(Stats)
+        self.keep_running = True
 
-    async def connect(self):
-        atexit.register(self.disconnect)
-        await self.subscribe()
-        raise NotImplementedError()
-
-    def disconnect(self):
-        raise NotImplementedError()
-
-    async def subscribe(self):
-        raise NotImplementedError()
+        self.upload_metric_stats_period = 10
 
     async def loop(self):
-        raise NotImplementedError()
+        await self.streaming_client.connect()
+        await self.streaming_client.subscribe(self.topics)
+
+        if self.upload_metric_stats_period > 0:
+            schedule.every(self.upload_metric_stats_period).seconds.do(self.upload_stats)
+
+        messages = self.streaming_client.message_iterator()
+        while self.keep_running:
+            try:
+                msg = await messages.__anext__()
+            except StopAsyncIteration:
+                return
+
+        # async for msg in self.streaming_client:
+            self.process_msg(msg)
+
+            await schedule.run_pending()
+            await asyncio.sleep(0)  # switch to next coroutine
 
     def process_msg(self, msg_raw):
         """
@@ -91,6 +108,9 @@ class BaseMsgProcessor:
 
         msg = msgpack.unpackb(msg_raw)
         self.number_of_received_messages += 1
+        job_id = msg['job_id']
+
+        # ToDo: metrics should be specified for job
 
         for metric in self.metrics:
             ts = pendulum.from_timestamp(msg["ts"]).replace(microsecond=0)
@@ -105,6 +125,11 @@ class BaseMsgProcessor:
             )
 
     async def upload_stats(self):
+        """
+        ToDo: this function is total garbage, find a way to implement it better without the use of ORM :(
+
+        :return:
+        """
         for k, v in self.running_stats.items():
             (job_id, ts, granularity) = k
             print("Upserting record", job_id, ts, granularity, v)

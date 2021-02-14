@@ -5,7 +5,7 @@ Goals:
 - [x] Have an API server that will periodically run jobs to check/ping external servers.
 - [x] Have a fake server that will return predicted results
 - [x] API should allow to start/cancel jobs and return it's status
-- [x] Test coverage is 67%, but only positive tests exists right now
+- [x] Test coverage is 86%, but only positive tests exists right now
 
 Current implementation doesn't store to database every message that was pushed to kafka.
 It's store only metric values. See [Processor](##-Processor-Kafka-Consumer) for details. 
@@ -79,21 +79,29 @@ that's why it is a configurable parameter.
 ## Processor Kafka Consumer
 Implemented in module [processors](processors) 
 
-Consume messages from Kafka, aggregate data from messages based on provided metrics, write data to 
+Consume messages from stream (Kafka, Pub/Sub, ZeroMQ), aggregate data from messages based on provided metrics, write data to 
 database at predefined periods.
 
 For example, it can consume 10k messages every second, and writing data to database every 10 seconds. 
 So instead of making 100k request to database it will make a few - based on data it aggregated during 
 this period.
 
-Base class ***BaseMsgProcessor*** provide functionality to:
+Class ***MsgProcessor*** provide functionality to:
 - Process incoming messages and extract/aggregate databased on metrics. 
 - Upsert records to PostgreSQL at predefined periods.
 - Keep aggregated data between calls to dump data to database.
 
-2 classes that implement kafka connection using different libraries:
-- ConfluentKafkaMsgProcessor - using Confluet Kafka library, it's a fastest python library but it's blocking.
-- AioKafkaMsgProcessor - Using AioKafka library, slightly slower, but it's asynchronous.
+## Streaming Clients
+Implemented in module [streaming_client](streaming_client)
+
+**ClientAbstract** - provide abstractions for StreamingClients. Using it's base logic is possible to 
+implement Clients for Redis, Pub/Sub, ZeroMQ etc.
+
+**ClientBase**  - used for testing purposes, use *deque* to emulate working with the queue. 
+
+2 classes that implement Kafka Streaming Client, using different libraries:
+- ClientKafkaConfluent - using Confluet Kafka library, it's a fastest python library but it's blocking.
+- ClientKafkaAio - Using AioKafka library, slightly slower, but it's asynchronous.
 
 ###### ToDo:
 - Function to upsert data to database is really crappy, need to fix it.

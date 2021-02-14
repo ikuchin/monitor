@@ -1,7 +1,8 @@
 import msgpack
 
 from monitors.base_stats import BaseStats
-from streaming_client.client_base import ClientBase
+from settings.defaults import default_streaming_client
+# from streaming_client.client_base import ClientBase
 
 
 class MonitorBase:
@@ -11,7 +12,7 @@ class MonitorBase:
         self.check_period_seconds = check_period_seconds or 60
         self.stats = BaseStats()
         self.number_of_send_messages = 0
-        self.streaming_client = ClientBase()
+        self.streaming_client = kwargs.get('streaming_client') or default_streaming_client
         self.running = False
 
     async def check(self):

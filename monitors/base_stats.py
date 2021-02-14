@@ -1,3 +1,8 @@
+"""
+ToDo: this class should be deprecated, only basic stats should be gathered.
+  The rest should be done though MetricTemplates/MetricInstances
+"""
+
 from collections import defaultdict
 from datetime import datetime
 

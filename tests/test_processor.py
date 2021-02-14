@@ -3,13 +3,14 @@ import random
 import msgpack
 from pendulum import datetime
 
-from processors.msg_processor_base import BaseMsgProcessor, Stats
+from processors.msg_processor import MsgProcessor, Stats
+from streaming_client.client_base import ClientBase
 
 
 class TestMsgProcessor(TestCase):
     def setUp(self) -> None:
         random.seed(0)
-        self.processor = BaseMsgProcessor(kafka_topics=[])
+        self.processor = MsgProcessor(topics=[], streaming_client=ClientBase())
 
     def test_process_msg_1(self):
         """

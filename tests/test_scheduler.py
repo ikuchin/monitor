@@ -5,7 +5,7 @@ import msgpack
 import pendulum
 from scheduler import Scheduler
 
-from processors.msg_processor_base import BaseMsgProcessor, Stats
+from processors.msg_processor import MsgProcessor, Stats
 
 
 class TestMsgProcessor(TestCase):

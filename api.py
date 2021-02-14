@@ -4,16 +4,20 @@ from fastapi import FastAPI, responses, Depends
 from starlette.requests import Request
 
 from db import DB
-from processors.msg_processor_aiokafka import AioKafkaMsgProcessor
+from processors.msg_processor import MsgProcessor
 from scheduler import Scheduler
 from db.sql_statments import create_table_jobs_statement, create_table_stats_statement
+from streaming_client.client_kafka_aio import ClientKafkaAio
 from website import WebsiteMock
 
 app = FastAPI(db=DB(), scheduler=Scheduler(), website_mock=WebsiteMock())
 
 # We can run Message Processor (Kafka message consumer) in the same process,
 # this may affect performance in negative way on the high load. But it's should be fine for POC.
-msg_processor = AioKafkaMsgProcessor(kafka_topics=["test"])
+msg_processor = MsgProcessor(
+    topics=["test"],
+    streaming_client=ClientKafkaAio(kafka_topics=["test"], consumer_offset="latest")
+)
 
 
 def get_scheduler():
