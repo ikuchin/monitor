@@ -8,7 +8,7 @@ Goals:
 - [x] Test coverage is 86%, but only positive tests exists right now
 
 Current implementation doesn't store to database every message that was pushed to kafka.
-It's store only metric values. See [Processor](##-Processor-Kafka-Consumer) for details. 
+It's store only metric values. See [Processor](##-Processor-(Kafka-Consumer)) for details. 
 
 For example we have 2 metrics with granularity "minute" and "hour", this what we will see database: 
 
@@ -76,7 +76,7 @@ HttpMonitor can be configured with next parameters:
 - Method to use on specified URI. HEAD/GET/POST etc. Not all end points may support all methods,
 that's why it is a configurable parameter.
 
-## Processor Kafka Consumer
+## Processor (Kafka Consumer)
 Implemented in module [processors](processors) 
 
 Consume messages from stream (Kafka, Pub/Sub, ZeroMQ), aggregate data from messages based on provided metrics, write data to 
@@ -100,12 +100,11 @@ implement Clients for Redis, Pub/Sub, ZeroMQ etc.
 **ClientBase**  - used for testing purposes, use *deque* to emulate working with the queue. 
 
 2 classes that implement Kafka Streaming Client, using different libraries:
-- ClientKafkaConfluent - using Confluet Kafka library, it's a fastest python library but it's blocking.
-- ClientKafkaAio - Using AioKafka library, slightly slower, but it's asynchronous.
+- **ClientKafkaConfluent** - using Confluet Kafka library, it's a fastest python library but it's blocking.
+- **ClientKafkaAio** - Using AioKafka library, slightly slower, but it's asynchronous.
 
 ###### ToDo:
 - Function to upsert data to database is really crappy, need to fix it.
-- Replace ConfluentKafkaMsgProcessor and AioKafkaMsgProcessor with [streaming_client](streaming_client) alternatives. 
  
 # Possible improvements
 - ***Scheduler*** can be replaced with *task scheduling system* such as Celery, but then ***MonitorBase*** 
